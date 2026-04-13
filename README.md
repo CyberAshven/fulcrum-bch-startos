@@ -71,6 +71,19 @@ StartOS-specific files:
 
 Fulcrum is configured via `fulcrum.conf`, managed by StartOS. RPC credentials are automatically injected from Bitcoin Cash Node's `store.json`.
 
+### User-Configurable Settings
+
+From the **Actions** tab in StartOS, select **Configure** to adjust:
+
+| Setting                     | Default | Description                               |
+| --------------------------- | ------- | ----------------------------------------- |
+| Server Banner               | *(set)* | MOTD shown to Electrum clients on connect |
+| Bitcoin RPC Timeout (seconds) | 30    | Timeout for RPC calls to Bitcoin Cash Node |
+| Bitcoin RPC Clients         | 3       | Simultaneous RPC connections to BCHN      |
+| Worker Threads (0 for auto) | 0       | Threads for serving Electrum clients      |
+| Database Memory (MB)        | 2048    | RAM allocated to database cache           |
+| Database Max Open Files     | 1000    | Max files the database keeps open         |
+
 ### Auto-Configured by StartOS
 
 | Setting      | Value                                   | Purpose                    |
@@ -146,7 +159,7 @@ The BCHN `.cookie` or `store.json` at `/mnt/bitcoin-cash-node/store.json` is use
 
 Contributions are welcome. Please open an issue or pull request on the [GitHub repository](https://github.com/CyberAshven/fulcrum-bch-startos).
 
-For build instructions, see the [Makefile](Makefile) and [s9pk.mk](s9pk.mk).
+For build instructions, see the [Makefile](Makefile).
 
 ---
 

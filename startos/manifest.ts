@@ -35,7 +35,7 @@ export const manifest = setupManifest({
   dependencies: {
     'bitcoin-cash-node': {
       description:
-        'Bitcoin Cash Node provides the blockchain data that Fulcrum BCH indexes.',
+        'Bitcoin Cash Node is required with full indexing enabled. Pruning must be disabled and txindex must be active for Fulcrum BCH to function properly.',
       optional: false,
       s9pk: null,
     },
