@@ -1,8 +1,11 @@
 import { sdk } from './sdk'
 import { electrumPort } from './utils'
 import { fulcrumConf } from './file-models/fulcrum.conf'
+import { manifest as bchnManifest } from 'bitcoin-cash-node-startos/startos/manifest'
 
 export const main = sdk.setupMain(async ({ effects }) => {
+  console.log('Starting Fulcrum BCH!')
+
   const mounts = sdk.Mounts.of()
     .mountVolume({
       volumeId: 'main',
@@ -10,7 +13,7 @@ export const main = sdk.setupMain(async ({ effects }) => {
       mountpoint: '/data',
       readonly: false,
     })
-    .mountDependency({
+    .mountDependency<typeof bchnManifest>({
       dependencyId: 'bitcoin-cash-node',
       volumeId: 'main',
       subpath: null,

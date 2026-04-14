@@ -20,6 +20,7 @@ export const manifest = setupManifest({
   images: {
     main: {
       source: { dockerTag: 'cculianu/fulcrum:v2.1.0' },
+      arch: ['x86_64', 'aarch64'],
     },
   },
   alerts: {
@@ -29,7 +30,8 @@ export const manifest = setupManifest({
     uninstall:
       'Uninstalling Fulcrum BCH will permanently delete all index data. You will need to re-index from scratch if reinstalled.',
     restore: null,
-    start: null,
+    start:
+      'Fulcrum BCH will not start until Bitcoin Cash Node is fully synced and running.',
     stop: null,
   },
   dependencies: {
