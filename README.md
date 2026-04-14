@@ -1,39 +1,3 @@
-## Upstream Tracking
-
-This package is adapted from [Start9Labs/fulcrum-startos](https://github.com/Start9Labs/fulcrum-startos) for Bitcoin Cash.
-
-The StartOS wrapper (health checks, SDK patterns, actions, backups) tracks Start9Labs upstream.
-The Fulcrum binary itself comes from the Docker image (`cculianu/fulcrum`) — track releases at [cculianu/Fulcrum](https://github.com/cculianu/Fulcrum) for version bumps.
-
-To set up upstream tracking locally:
-
-```bash
-git remote add upstream-startos https://github.com/Start9Labs/fulcrum-startos.git
-git fetch upstream-startos
-```
-
-Cherry-pick relevant upstream commits (bug fixes, SDK updates, health check improvements) rather than merging wholesale, since this package has diverged in dependency wiring (bitcoin-cash-node instead of bitcoind) and auth method (RPC user/password instead of cookie auth).
-
-```bash
-git fetch upstream-startos
-git log upstream-startos/master --oneline
-git cherry-pick <commit-hash>
-```
-
-## Architecture Support
-
-Currently x86_64 only. To add aarch64 (ARM) support in the future:
-
-1. Build multi-arch Docker images:
-   ```bash
-   docker buildx build --platform linux/amd64,linux/arm64 -t ghcr.io/cyberashven/fulcrum-bch:latest .
-   ```
-
-2. Update `startos/manifest.ts` image arch fields:
-   ```typescript
-   arch: ['x86_64', 'aarch64'],
-   ```
-
 <p align="center">
   <img src="icon.png" alt="Fulcrum BCH Logo" width="21%">
 </p>
@@ -198,7 +162,42 @@ Contributions are welcome. Please open an issue or pull request on the [GitHub r
 For build instructions, see the [Makefile](Makefile).
 
 ---
+## Upstream Tracking
 
+This package is adapted from [Start9Labs/fulcrum-startos](https://github.com/Start9Labs/fulcrum-startos) for Bitcoin Cash.
+
+The StartOS wrapper (health checks, SDK patterns, actions, backups) tracks Start9Labs upstream.
+The Fulcrum binary itself comes from the Docker image (`cculianu/fulcrum`) — track releases at [cculianu/Fulcrum](https://github.com/cculianu/Fulcrum) for version bumps.
+
+To set up upstream tracking locally:
+
+```bash
+git remote add upstream-startos https://github.com/Start9Labs/fulcrum-startos.git
+git fetch upstream-startos
+```
+
+Cherry-pick relevant upstream commits (bug fixes, SDK updates, health check improvements) rather than merging wholesale, since this package has diverged in dependency wiring (bitcoin-cash-node instead of bitcoind) and auth method (RPC user/password instead of cookie auth).
+
+```bash
+git fetch upstream-startos
+git log upstream-startos/master --oneline
+git cherry-pick <commit-hash>
+```
+
+## Architecture Support
+
+Currently x86_64 only. To add aarch64 (ARM) support in the future:
+
+1. Build multi-arch Docker images:
+   ```bash
+   docker buildx build --platform linux/amd64,linux/arm64 -t ghcr.io/cyberashven/fulcrum-bch:latest .
+   ```
+
+2. Update `startos/manifest.ts` image arch fields:
+   ```typescript
+   arch: ['x86_64', 'aarch64'],
+   ```
+---
 ## Quick Reference for AI Consumers
 
 ```yaml
