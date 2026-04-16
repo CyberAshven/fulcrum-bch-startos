@@ -11,10 +11,13 @@ const BCHD_AUTOCONFIG_REPLAY_ID = 'bchd-autoconfig'
 export const setDependencies = sdk.setupDependencies(async ({ effects }) => {
   const store = await storeJson.read().const(effects)
   const nodePackageId = store?.nodePackageId ?? 'bitcoincashd'
-  const runtimeEffects = effects as any
 
   if (!store?.nodeConfirmed) {
-    await runtimeEffects.clearTasks({ except: [SELECT_NODE_REPLAY_ID] })
+    await sdk.action.clearTask(
+      effects,
+      BCHN_AUTOCONFIG_REPLAY_ID,
+      BCHD_AUTOCONFIG_REPLAY_ID,
+    )
     await sdk.action.createOwnTask(effects, selectNode, 'critical', {
       replayId: SELECT_NODE_REPLAY_ID,
       reason: 'Confirm which BCH node package ID should back this Fulcrum instance',
@@ -24,7 +27,11 @@ export const setDependencies = sdk.setupDependencies(async ({ effects }) => {
   }
 
   if (nodePackageId === 'bchd') {
-    await runtimeEffects.clearTasks({ except: [BCHD_AUTOCONFIG_REPLAY_ID] })
+    await sdk.action.clearTask(
+      effects,
+      SELECT_NODE_REPLAY_ID,
+      BCHN_AUTOCONFIG_REPLAY_ID,
+    )
     await sdk.action.createTask(effects, 'bchd', bchdAutoconfig, 'critical', {
       replayId: BCHD_AUTOCONFIG_REPLAY_ID,
       input: {
@@ -49,7 +56,11 @@ export const setDependencies = sdk.setupDependencies(async ({ effects }) => {
     } as any
   }
 
-  await runtimeEffects.clearTasks({ except: [BCHN_AUTOCONFIG_REPLAY_ID] })
+  await sdk.action.clearTask(
+    effects,
+    SELECT_NODE_REPLAY_ID,
+    BCHD_AUTOCONFIG_REPLAY_ID,
+  )
   await sdk.action.createTask(effects, nodePackageId, bchnAutoconfig, 'critical', {
     replayId: BCHN_AUTOCONFIG_REPLAY_ID,
     input: {
