@@ -13,13 +13,13 @@ export const setDependencies = sdk.setupDependencies(async ({ effects }) => {
       input: {
         kind: 'partial',
         value: {
-          prune: null,
+          prune: 0,
           txindex: true,
           zmqEnabled: false,
         },
       },
       reason:
-        'Pruning must be disabled and txindex must be enabled for Fulcrum BCH to function properly.',
+        'Pruning must be disabled and txindex must be enabled for Fulcrum to function properly.',
       when: { condition: 'input-not-matches', once: false },
     })
   } else {
@@ -28,13 +28,13 @@ export const setDependencies = sdk.setupDependencies(async ({ effects }) => {
       input: {
         kind: 'partial',
         value: {
-          prune: null,
+          prune: 0,
           txindex: true,
           zmqEnabled: true,
         },
       },
       reason:
-        'Pruning must be disabled, txindex and ZMQ must be enabled for Fulcrum BCH to function properly.',
+        'Pruning must be disabled, txindex and ZMQ must be enabled for Fulcrum to function properly.',
       when: { condition: 'input-not-matches', once: false },
     })
   }
