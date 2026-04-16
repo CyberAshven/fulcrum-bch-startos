@@ -5,9 +5,7 @@ const iniNumber = z.union([z.string().transform(Number), z.number()])
 
 export const shape = z.object({
   datadir: z.literal('/data').catch('/data'),
-  bitcoind: z
-    .literal('bitcoin-cash-node.startos:8332')
-    .catch('bitcoin-cash-node.startos:8332'),
+  bitcoind: z.string().catch('bitcoincashd.startos:8332'),
   rpcuser: z.string().catch(''),
   rpcpassword: z.string().catch(''),
   tcp: z.literal('0.0.0.0:50001').catch('0.0.0.0:50001'),

@@ -1,10 +1,14 @@
 import { sdk } from './sdk'
 import { electrumPort } from './utils'
 import { fulcrumConf } from './file-models/fulcrum.conf'
-import { manifest as bchnManifest } from 'bitcoin-cash-node-startos/startos/manifest'
+import { storeJson } from './file-models/store.json'
 
 export const main = sdk.setupMain(async ({ effects }) => {
   console.log('Starting Fulcrum BCH!')
+
+  const store = await storeJson.read().once()
+  const nodePackageId = store?.nodePackageId ?? 'bitcoincashd'
+  const nodeHost = `${nodePackageId}.startos:8332`
 
   const mounts = sdk.Mounts.of()
     .mountVolume({
@@ -13,11 +17,11 @@ export const main = sdk.setupMain(async ({ effects }) => {
       mountpoint: '/data',
       readonly: false,
     })
-    .mountDependency<typeof bchnManifest>({
-      dependencyId: 'bitcoin-cash-node',
+    .mountDependency({
+      dependencyId: nodePackageId,
       volumeId: 'main',
       subpath: null,
-      mountpoint: '/mnt/bitcoin-cash-node',
+      mountpoint: '/mnt/node',
       readonly: true,
     })
 
@@ -30,22 +34,26 @@ export const main = sdk.setupMain(async ({ effects }) => {
     'primary-sub',
   )
 
-  // Read BCHN RPC credentials from the mounted dependency volume inside the subcontainer
-  let rpcUser = 'bitcoin-cash-node'
+  // Read node RPC credentials from the mounted dependency volume inside the subcontainer
+  let rpcUser = nodePackageId
   let rpcPassword = ''
   try {
-    const result = await primarySub.exec(['cat', '/mnt/bitcoin-cash-node/store.json'])
+    const result = await primarySub.exec(['cat', '/mnt/node/store.json'])
     if (result.exitCode === 0) {
       const store = JSON.parse(result.stdout.toString()) as { rpcUser?: string; rpcPassword?: string }
       rpcUser = store.rpcUser ?? rpcUser
       rpcPassword = store.rpcPassword ?? rpcPassword
     }
   } catch {
-    console.warn('Could not read BCHN store.json — using defaults')
+    console.warn('Could not read node store.json — using defaults')
   }
 
   // Inject credentials into fulcrum.conf before starting the daemon
-  await fulcrumConf.merge(effects, { rpcuser: rpcUser, rpcpassword: rpcPassword })
+  await fulcrumConf.merge(effects, {
+    bitcoind: nodeHost,
+    rpcuser: rpcUser,
+    rpcpassword: rpcPassword,
+  })
 
   let lastSyncLog: string | null = null
 

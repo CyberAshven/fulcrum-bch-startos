@@ -51,16 +51,17 @@ StartOS-specific files:
 | --------------- | ------ | ------------------------------------------------- |
 | `fulcrum.conf`  | `main` | Fulcrum configuration (managed by StartOS)        |
 | `banner.txt`    | `main` | MOTD banner shown to Electrum clients on connect  |
+| `store.json`    | `main` | StartOS state (selected node package ID)          |
 
 ## Installation and First-Run Flow
 
-1. **Ensure Bitcoin Cash Node is installed** and fully synced
+1. **Ensure a BCH node package is installed** (default: `bitcoincashd`) and fully synced
 2. Install Fulcrum BCH from the StartOS marketplace
-3. Bitcoin Cash Node will be automatically configured with:
+3. Selected BCH node backend will be automatically configured with:
    - `txindex=true` (transaction indexing enabled)
    - `prune=0` (pruning disabled)
    - `zmqEnabled=true` (ZMQ notifications enabled)
-4. Wait for Bitcoin Cash Node to finish syncing
+4. Wait for selected node backend to finish syncing
 5. Fulcrum will begin indexing the full BCH blockchain — **this may take several hours** on first run
 
 **Install alert:** Fulcrum BCH requires Bitcoin Cash Node to be fully synced before it begins indexing. Initial indexing of the full BCH blockchain may take several hours.
@@ -69,7 +70,14 @@ StartOS-specific files:
 
 ## Configuration Management
 
-Fulcrum is configured via `fulcrum.conf`, managed by StartOS. RPC credentials are automatically injected from Bitcoin Cash Node's `store.json`.
+Fulcrum is configured via `fulcrum.conf`, managed by StartOS. RPC credentials are automatically injected from the selected node backend's `store.json`.
+
+### Node Backend Selection
+
+Use **Actions -> Select Node Backend** to choose which StartOS package ID Fulcrum should use.
+
+- Default: `bitcoincashd`
+- You can switch to any compatible BCH node package ID without refactoring Fulcrum internals
 
 ### User-Configurable Settings
 
@@ -79,7 +87,7 @@ From the **Actions** tab in StartOS, select **Configure** to adjust:
 | --------------------------- | ------- | ----------------------------------------- |
 | Server Banner               | *(set)* | MOTD shown to Electrum clients on connect |
 | Bitcoin RPC Timeout (seconds) | 30    | Timeout for RPC calls to Bitcoin Cash Node |
-| Bitcoin RPC Clients         | 3       | Simultaneous RPC connections to BCHN      |
+| Bitcoin RPC Clients         | 3       | Simultaneous RPC connections to selected node backend |
 | Worker Threads (0 for auto) | 0       | Threads for serving Electrum clients      |
 | Database Memory (MB)        | 2048    | RAM allocated to database cache           |
 | Database Max Open Files     | 1000    | Max files the database keeps open         |
@@ -88,14 +96,15 @@ From the **Actions** tab in StartOS, select **Configure** to adjust:
 
 | Setting      | Value                                   | Purpose                    |
 | ------------ | --------------------------------------- | -------------------------- |
-| `rpcuser`    | From BCHN `store.json`                  | RPC authentication         |
-| `rpcpassword`| From BCHN `store.json`                  | RPC authentication         |
+| `bitcoind`   | `<selected-node>.startos:8332`          | Selected BCH node RPC host |
+| `rpcuser`    | From selected node `store.json`         | RPC authentication         |
+| `rpcpassword`| From selected node `store.json`         | RPC authentication         |
 | `datadir`    | `/data`                                 | Index data directory       |
 | `tcp`        | `0.0.0.0:50001`                         | Electrum TCP port          |
 
-### Bitcoin Cash Node Requirements
+### Node Backend Requirements
 
-StartOS automatically configures Bitcoin Cash Node with critical tasks:
+StartOS automatically configures the selected BCH node backend with critical tasks:
 
 - `txindex=true` — Transaction indexing enabled (required)
 - `prune=0` — Pruning disabled (required for full index)
@@ -130,13 +139,13 @@ The sync progress health check parses Fulcrum's stdout for `<Controller>` messag
 
 ## Dependencies
 
-| Dependency         | Required | Mounted Volume                         | Purpose                    | Auto-Config                          |
-| ------------------ | -------- | -------------------------------------- | -------------------------- | ------------------------------------ |
-| Bitcoin Cash Node  | Yes      | `main` → `/mnt/bitcoin-cash-node`     | Blockchain data + RPC      | txindex=true, prune=0, zmqEnabled=true |
+| Dependency         | Required | Mounted Volume                  | Purpose                    | Auto-Config                          |
+| ------------------ | -------- | ------------------------------- | -------------------------- | ------------------------------------ |
+| BCH Node Backend (`bitcoincashd` by default) | Yes | `main` → `/mnt/node` | Blockchain data + RPC | txindex=true, prune=0, zmqEnabled=true |
 
-Bitcoin Cash Node latest release must be running and passing its primary health check.
+Selected node backend must be running and passing its primary health check.
 
-The BCHN `.cookie` or `store.json` at `/mnt/bitcoin-cash-node/store.json` is used for RPC authentication.
+The selected node `store.json` at `/mnt/node/store.json` is used for RPC authentication.
 
 ## Limitations and Differences
 
@@ -211,7 +220,7 @@ volumes:
 ports:
   electrum: 50001 (TCP, Electrum protocol)
 dependencies:
-  - bitcoin-cash-node (required, version >=29.0.0:0, auto-config: txindex, prune=0, zmq)
+  - bitcoincashd (required default, version >=29.0.0:0; overridable via Select Node Backend action)
 health_checks:
   - electrum: port_listening 50001
   - sync-progress: port_listening 50001 + log parsing
