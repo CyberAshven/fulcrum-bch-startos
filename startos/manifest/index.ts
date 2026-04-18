@@ -52,5 +52,14 @@ export const manifest = setupManifest({
         icon: 'https://raw.githubusercontent.com/BitcoinCash1/bitcoin-cash-daemon-startos/master/icon.png',
       },
     },
+    flowee: {
+      description:
+        'Flowee the Hub — Fast BCH validator with SPV-level security. Good for relay and fast block propagation, but not recommended as sole mining node.',
+      optional: true,
+      metadata: {
+        title: 'Flowee the Hub',
+        icon: 'https://raw.githubusercontent.com/BitcoinCash1/flowee-startos/master/icon.png',
+      },
+    },
   },
 })

@@ -1,5 +1,6 @@
 import { autoconfig as bchnAutoconfig } from 'bitcoin-cash-node-startos/startos/actions/config/autoconfig'
 import { autoconfig as bchdAutoconfig } from 'bitcoin-cash-daemon-startos/startos/actions/config/autoconfig'
+import { autoconfig as floweeAutoconfig } from 'flowee-startos/startos/actions/config/autoconfig'
 import { sdk } from './sdk'
 import { storeJson } from './file-models/store.json'
 
@@ -26,9 +27,11 @@ export const setDependencies = sdk.setupDependencies(async ({ effects }) => {
     // canonical colon format (created by SDK when no replayId given)
     'bitcoincashd:autoconfig',
     'bchd:autoconfig',
+    'flowee:autoconfig',
     // legacy dash format (created by earlier fulcrum-bch builds)
     'bitcoincashd-autoconfig',
     'bchd-autoconfig',
+    'flowee-autoconfig',
     // legacy select-node task
     'select-node',
     // stale typo from earlier builds (wrong package ID)
@@ -54,6 +57,28 @@ export const setDependencies = sdk.setupDependencies(async ({ effects }) => {
       bchd: {
         kind: 'running',
         versionRange: '>=0.21.1:0',
+        healthChecks: ['primary'],
+      },
+    } as any
+  }
+
+  if (nodePackageId === 'flowee') {
+    await sdk.action.createTask(effects, 'flowee', floweeAutoconfig, 'critical', {
+      input: {
+        kind: 'partial',
+        value: {
+          rest: true,
+        },
+      },
+      reason:
+        'REST API must be enabled for Fulcrum to function properly.',
+      when: { condition: 'input-not-matches', once: false },
+    })
+
+    return {
+      flowee: {
+        kind: 'running',
+        versionRange: '>=1.0.0:0',
         healthChecks: ['primary'],
       },
     } as any
